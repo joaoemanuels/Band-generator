@@ -7,24 +7,33 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const app = express()
 const port = 3000
-var bandName = ""
+
+var userIsAuthorized = false;
+
 
 app.use(bodyParser.urlencoded({ extended: true }))
 
-function bandNameGenerator(req, res, next) {
-  console.log(req.body);
-  bandName = req.body["street"] + req.body["pet"];
+function passwordCheck(req, res, next) {
+  const password = req.body["password"];
+  if (password === "euAmoP") {
+    userIsAuthorized = true;
+  }
   next();
 }
 
-app.use(bandNameGenerator)
+app.use(passwordCheck)
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/public/index.html")
 })
 
-app.post("/submit", (req, res) => {
-  res.send(`<h1>O nome de sua banda é: </h1><h2>${bandName}.</h2>`)
+app.post("/check", (req, res) => {
+  if (userIsAuthorized) {
+    res.sendFile(__dirname + "/public/secret.html")
+  }
+  else {
+    res.sendFile(__dirname + "/public/index.html")
+  }
 })
 
 app.listen(port, () => {
